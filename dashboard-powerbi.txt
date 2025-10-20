@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Power BI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    header {
+      width: 100%;
+      background: #0b5ed7;
+      color: #fff;
+      text-align: center;
+      padding: 16px;
+      font-size: 1.5rem;
+    }
+    .iframe-container {
+      width: 95%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    footer {
+      margin-top: 16px;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>Dashboard Power BI</header>
+  <div class="iframe-container">
+    <iframe title="RPBI11_HISTORICO_PRODUCAO_02"
+      src="https://app.powerbi.com/reportEmbed?reportId=a015aacd-e1b9-4e85-b763-b2a959a3123f&amp;autoAuth=true&amp;ctid=c4722be1-630a-4fbf-b592-a2128a1b4171"
+      allowfullscreen="true">
+   
