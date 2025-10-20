@@ -3,51 +3,142 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Power BI</title>
+  <title>Dashboard Power BI — Login</title>
   <style>
+    :root { --brand:#0b5ed7; --brand-2:#0a58ca; --bg:#f4f6f8; --text:#1f2430; }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
     header {
-      width: 100%;
-      background: #0b5ed7;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
       color: #fff;
+      padding: 16px 24px;
       text-align: center;
-      padding: 16px;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
     }
-    .iframe-container {
-      width: 95%;
-      max-width: 1200px;
-      aspect-ratio: 16 / 9;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .card {
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04); padding: 20px;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    footer {
-      margin-top: 16px;
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
+    .grid { display: grid; gap: 12px; }
+    label { font-size: .95rem; color: #374151; }
+    .input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; }
+    .btn { background: var(--brand); color: #fff; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+    .btn.secondary { background: #6b7280; }
+    .muted { color: #6b7280; font-size: .9rem; }
+    .error { color: #dc2626; font-size: .9rem; display: none; }
+    .toolbar { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; }
+    .iframe-wrap { width: 100%; aspect-ratio: 16 / 9; background:#fff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+    iframe { width: 100%; height: 100%; border: 0; }
+    noscript { color: #b91c1c; }
   </style>
 </head>
 <body>
   <header>Dashboard Power BI</header>
-  <div class="iframe-container">
-    <iframe title="RPBI11_HISTORICO_PRODUCAO_02"
-      src="https://app.powerbi.com/reportEmbed?reportId=a015aacd-e1b9-4e85-b763-b2a959a3123f&amp;autoAuth=true&amp;ctid=c4722be1-630a-4fbf-b592-a2128a1b4171"
-      allowfullscreen="true">
-   
+
+  <main class="container">
+    <!-- Login -->
+    <section id="cardLogin" class="card">
+      <h2 style="margin:0 0 8px;">Acesso restrito</h2>
+      <p class="muted" style="margin-top:0">Usuário e senha necessários para visualizar o dashboard.</p>
+      <form id="formLogin" class="grid" autocomplete="off">
+        <div>
+          <label for="usuario">Usuário</label>
+          <input id="usuario" class="input" placeholder="Digite seu usuário" required />
+        </div>
+        <div>
+          <label for="senha">Senha</label>
+          <input id="senha" type="password" class="input" placeholder="Digite a senha" required />
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn" type="submit">Entrar</button>
+          <span id="msgErro" class="error">Usuário ou senha inválidos.</span>
+        </div>
+        <p class="muted" style="margin-top:8px;margin-bottom:0">
+          Aviso: gate de conveniência no front‑end. Para proteção real, use autenticação corporativa (Microsoft Entra ID/Azure AD) e permissões do Power BI.
+        </p>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="cardDash" class="card" style="display:none;">
+      <div class="toolbar">
+        <div><strong>Dashboard Power BI</strong> <span class="muted">— acesso concedido</span></div>
+        <div><button id="btnLogout" class="btn secondary" type="button">Sair</button></div>
+      </div>
+      <div class="iframe-wrap">
+        <iframe
+          title="RPBI11_HISTORICO_PRODUCAO_02"
+          src="https://app.powerbi.com/reportEmbed?reportId=a015aacd-e1b9-4e85-b763-b2a959a3123f&autoAuth=true&ctid=c4722be1-630a-4fbf-b592-a2128a1b4171"
+          allowfullscreen="true">
+        </iframe>
+      </div>
+    </section>
+Sua organização</footer>
+  <noscript>Habilite o JavaScript para utilizar esta página.</noscript>
+
+  <script>
+    // ======== CONFIG ========
+    const VALID_USER = "mpires";
+    const VALID_PASS = "123"; // visível no código-fonte
+    const SESSION_KEY = "pbidash_login_v1";
+    const SESSION_TTL_MIN = 480; // 8 horas
+    // ========================
+
+    const els = {
+      cardLogin: document.getElementById("cardLogin"),
+      cardDash: document.getElementById("cardDash"),
+      formLogin: document.getElementById("formLogin"),
+      usuario: document.getElementById("usuario"),
+      senha: document.getElementById("senha"),
+      msgErro: document.getElementById("msgErro"),
+      btnLogout: document.getElementById("btnLogout"),
+    };
+
+    function showLogin() {
+      els.cardDash.style.display = "none";
+      els.cardLogin.style.display = "";
+      els.msgErro.style.display = "none";
+      els.senha.value = "";
+      setTimeout(() => els.usuario.focus(), 0);
+    }
+    function showDash() {
+      els.cardLogin.style.display = "none";
+      els.cardDash.style.display = "";
+    }
+    function setSession() {
+      const exp = Date.now() + SESSION_TTL_MIN * 60 * 1000;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ exp }));
+    }
+    function clearSession() { localStorage.removeItem(SESSION_KEY); }
+    function hasValidSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return false;
+        const { exp } = JSON.parse(raw);
+        return typeof exp === "number" && Date.now() < exp;
+      } catch { return false; }
+    }
+
+    els.formLogin.addEventListener("submit", (e) => {
+      e.preventDefault();
+      els.msgErro.style.display = "none";
+      const user = (els.usuario.value || "").trim().toLowerCase();
+      const pass = els.senha.value || "";
+      const ok = user === VALID_USER.toLowerCase() && pass === VALID_PASS;
+      if (ok) { setSession(); showDash(); }
+      else { els.msgErro.style.display = ""; }
+    });
+
+    els.btnLogout.addEventListener("click", () => { clearSession(); showLogin(); });
+
+    // Inicialização
+    if (hasValidSession()) showDash(); else showLogin();
+  </script>
+</body>
+</html>
